@@ -1,15 +1,16 @@
 import Graphics.UI.WX
+import Graphics.UI.WX.Dialogs
 import Graphics.UI.WX.Controls
 import Types
 
 main = start ide
 
 ide = do
-	ideContent <- varCreate defaultIDEParam --data whith treated in HiDE
+	param <- varCreate defaultIDEParam --data whith treated in HiDE
 
 	f <- frame[text := "HiDE"]
 	p <- panel f []
-	ms <- mkMenubar
+	ms <- mkMenubar f param
 	editArea <- textCtrlRich p [size := sz 600 400]
 	messageArea <- textCtrlRich p [size := sz 200 400]
 	fileManager <- textCtrlRich p [size := sz 200 400]
@@ -20,7 +21,7 @@ ide = do
             ,(margin 5 $ row 2 [widget messageArea,widget fileManager])]
 			,clientSize := Size 1000 600]
 
-mkMenubar = do
+mkMenubar f param = do
 	file <- menuPane [text:="&File"]
 	fOpen <- menuItem file [text := "Open"]
 	fNew <- menuItem file [text := "New"]
@@ -40,8 +41,8 @@ mkMenubar = do
 	hHelp <- menuItem help [text := "Compile"]
 
 	return [menuBar := [file,edit,build,help],
-			on (menu fOpen) := return (),
-			on (menu fNew) := return (),
+			on (menu fOpen) := fileopen f param,
+			on (menu fNew) := do return (),
 			on (menu fSave) := return (),
 			on (menu fSaveAs) := return (),
 			on (menu fClose) := return (),
@@ -50,3 +51,11 @@ mkMenubar = do
 			on (menu bBuild) := return (),
 			on (menu bExecute) := return ()
 		]
+
+fileopen f param = do
+	path <- fileOpenDialog f True True "Open Project" [("Haskell file",["*.hs"])] "" ""
+	case path of
+		Nothing -> return ()
+		Just str -> do
+			varUpdate param (\param' -> param' {projectPath = str})
+			return ()
