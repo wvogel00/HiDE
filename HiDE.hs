@@ -1,9 +1,12 @@
 import Graphics.UI.WX
 import Graphics.UI.WX.Controls
+import Types
 
 main = start ide
 
 ide = do
+	ideContent <- varCreate defaultIDEParam --data whith treated in HiDE
+
 	f <- frame[text := "HiDE"]
 	p <- panel f []
 	ms <- mkMenubar
@@ -13,7 +16,7 @@ ide = do
 
 	set f ms
 	set f [	layout :=container p $ column 0
-			[margin 30 $ widget editArea
+			[margin 0 $ minsize (sz 800 400) $ widget editArea
             ,(margin 5 $ row 2 [widget messageArea,widget fileManager])]
 			,clientSize := Size 1000 600]
 
